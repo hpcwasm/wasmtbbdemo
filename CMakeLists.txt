@@ -118,25 +118,29 @@ add_executable(tbbdemo tbbdemo.cpp  ${MYOBJECTS}  )
 # USE_PTHREADS
 
 
-set(WASM_SUFFIX ".html")
+set(WASM_SUFFIX ".js")
 set_target_properties(tbbdemo PROPERTIES 
 SUFFIX "${WASM_SUFFIX}" 
 # LINK_FLAGS "--bind -Wl,--shared-memory,--no-check-features -s USE_PTHREADS=1  -s PTHREAD_POOL_SIZE=2 -s USE_ZLIB=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0"
 # LINK_FLAGS "--bind -s USE_PTHREADS=1" 
 COMPILE_FLAGS "--bind -Wl,--shared-memory,--no-check-features -s USE_PTHREADS=1  -s USE_ZLIB=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+-O0 \
 -s NO_FILESYSTEM=0 \
 -s WASM=1 \
 -s PTHREAD_HINT_NUM_CORES=4 \
 -s ALLOW_MEMORY_GROWTH=0 \
 -s PTHREADS_DEBUG=1 \
 -s TOTAL_MEMORY=536870912 \
+-s PROXY_TO_PTHREAD=1 \
 -s WASM_MEM_MAX=536870912"
 LINK_FLAGS "--bind -Wl,--shared-memory,--no-check-features,  -s USE_PTHREADS=1  -s USE_ZLIB=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+-O0 \
 -s NO_FILESYSTEM=0 \
 -s WASM=1 \
--s ALLOW_MEMORY_GROWTH=4 \
+-s ALLOW_MEMORY_GROWTH=0 \
 -s PTHREAD_HINT_NUM_CORES=4 \
 -s PTHREADS_DEBUG=1 \
+-s PROXY_TO_PTHREAD=1 \
 -s TOTAL_MEMORY=536870912 \
 -s WASM_MEM_MAX=536870912")
 # -s PTHREAD_POOL_SIZE=4 \
