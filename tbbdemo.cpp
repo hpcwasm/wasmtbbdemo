@@ -6,8 +6,9 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <ctime>
 
-#include "tbb/task_group.h"
+#include <tbb/task_group.h>
 #include <tbb/parallel_for.h>
 #include <tbb/task_scheduler_init.h>
 
@@ -17,7 +18,7 @@ struct mytask {
   mytask(size_t n) : _n(n) {}
   void operator()() {
     volatile double sum = 0;
-    for (int i = 0; i < 1000000; ++i) {
+    for (int i = 0; i < 100000000; ++i) {
       sum += 5.3 / i;
     } // Deliberately run slow
     // std::cout << "[" << _n << "]";
@@ -47,12 +48,13 @@ public:
   }
 
   static int runParallel(int grainsize) {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size(), grainsize),
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()),
                       [](const tbb::blocked_range<size_t> &r) {
                         for (size_t i = r.begin(); i < r.end(); ++i) {
                           tasks[i]();
                         }
                       });
+    std::cout << "runParallel done " << std::endl;            
     return grainsize;
   }
 
@@ -60,6 +62,7 @@ public:
     for (size_t i = 0; i < tasks.size(); i++) {
       tasks[i]();
     }
+    std::cout << "runSerial done " << std::endl;            
     return 1;
   }
 };
@@ -90,6 +93,28 @@ int Fib(int n) {
   }
 }
 
+int main(){
+  std::cout << "test\n";
+  auto example = Example();
+  clock_t begin_time = clock();
+  example.init(2);
+  clock_t end_time = clock();
+  std::cout << float( end_time - begin_time ) /  CLOCKS_PER_SEC << std::endl; 
+
+  begin_time = clock();
+  example.createTasks(64);
+  end_time = clock();
+  std::cout << float( end_time - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+  begin_time = clock();
+  example.runParallel(16);
+  end_time = clock();
+  std::cout << float( end_time - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+  begin_time = clock();
+  example.runSerial();
+  end_time = clock();
+  std::cout << float( end_time - begin_time ) /  CLOCKS_PER_SEC << std::endl;
+  return 0;
+}
 // int myrun2(int n) { return Fib(n); }
 
 EMSCRIPTEN_BINDINGS(tbbdemo) {
